@@ -1,2 +1,3 @@
+v0.1.2  : ESLint fixes
 v0.1.1  : Added missing parameters: onComplete, zeroResults, paginationContainer
 v0.1  : Initial commit, first release

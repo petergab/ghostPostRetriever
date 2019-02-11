@@ -1,5 +1,8 @@
+/*global jQuery, ghost*/
+/*eslint max-statements: ["error", 20]*/
+/*eslint no-use-before-define: ["error", { "variables": false }]*/
 /**
-* ghostPostRetriever - 0.1.1
+* ghostPostRetriever - 0.1.2
  * for Ghost Version: 0.11.7
  * Copyright (C) 2019 Piotr Gabara (skyweb.piotr.gabara@gmail.com)
  * MIT Licensed
@@ -14,18 +17,17 @@
   };
 
   $.fn.ghostPostRetriever.defaults = {
-    postTemplate: "<a href='{{link}}'>{{title}}</a>",
-    tagTemplate: '<a href="/tag/\{\{slug\}\}">\{\{name\}\}</a>',
-    authorTemplate: '<a href="/author/\{\{slug\}\}">\{\{name\}\}</a>',
-    paginationContainerTemplate: '\
-      <div class="extra-pagination inner">\
-        <nav class="pagination">\
-          {{prevTemplate}}\
-          <span>Page {{page}} of {{pages}}</span>\
-          {{nextTemplate}}\
-        </nav>\
-      </div>\
-    ',
+    postTemplate: '<a href="{{link}}">{{title}}</a>',
+    tagTemplate: '<a href="/tag/{{slug}}">{{name}}</a>',
+    authorTemplate: '<a href="/author/{{slug}}">{{name}}</a>',
+    paginationContainerTemplate: '' +
+      '<div class="extra-pagination inner">' +
+        '<nav class="pagination">' +
+          '{{prevTemplate}}' +
+          '<span>Page {{page}} of {{pages}}</span>' +
+          '{{nextTemplate}}' +
+        '</nav>' +
+      '</div>',
     paginationPrevTemplate: '<a target="_self" href="{{urlPrev}}">&larr; Newer Posts</a>',
     paginationNextTemplate: '<a target="_self" href="{{urlNext}}">Older Posts &rarr;</a>',
     paginationContainer: false,
@@ -45,7 +47,6 @@
   };
 
   var pluginMethods = {
-
     init: function(target, opts) {
       this.target = target;
       this.postTemplate = opts.postTemplate;
@@ -73,7 +74,7 @@
 
       if (this.before) {
         this.before();
-      };
+      }
 
       var getPostOptionsDefault = {
         limit: this.postsLimit,
@@ -92,8 +93,8 @@
           }
           if (post.tags) {
             var tagArr = post.tags.map(function(t) {
-              return (t.visibility == 'public' ? this.format(this.tagTemplate, t) : '');
-            }.bind(this))
+              return (t.visibility === 'public' ? this.format(this.tagTemplate, t) : '');
+            }.bind(this));
             var tagList = (tagArr.length > 0 ? tagArr.filter(Boolean).join(', ') : '');
             post.tagList = tagList;
           }
@@ -121,9 +122,9 @@
 
         if (this.onComplete) {
           this.onComplete();
-        };
+        }
       }.bind(this)).fail(function(err) {
-        console.log(err);
+        $(this.target).append('Error occured (' + err + '). Please try again.');
       });
     },
 
