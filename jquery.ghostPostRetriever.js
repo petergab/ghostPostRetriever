@@ -1,5 +1,5 @@
 /**
-* ghostPostRetriever - 0.1.0
+* ghostPostRetriever - 0.1.1
  * for Ghost Version: 0.11.7
  * Copyright (C) 2019 Piotr Gabara (skyweb.piotr.gabara@gmail.com)
  * MIT Licensed
@@ -28,6 +28,7 @@
     ',
     paginationPrevTemplate: '<a target="_self" href="{{urlPrev}}">&larr; Newer Posts</a>',
     paginationNextTemplate: '<a target="_self" href="{{urlNext}}">Older Posts &rarr;</a>',
+    paginationContainer: false,
     before: false,
     onComplete: false,
     page: 1,
@@ -39,7 +40,8 @@
       day: '2-digit'
     },
     getAdditionalPostOptions: {},
-    exerptLimit: 200
+    exerptLimit: 200,
+    zeroResultsInfo: 'There are no posts that meet specified criteria.'
   };
 
   var pluginMethods = {
@@ -52,6 +54,7 @@
       this.paginationContainerTemplate = opts.paginationContainerTemplate;
       this.paginationPrevTemplate = opts.paginationPrevTemplate;
       this.paginationNextTemplate = opts.paginationNextTemplate;
+      this.paginationContainer = opts.paginationContainer;
       this.before = opts.before;
       this.onComplete = opts.onComplete;
       this.page = opts.page;
@@ -60,6 +63,7 @@
       this.toLocaleDateStringOptions = opts.toLocaleDateStringOptions;
       this.getAdditionalPostOptions = opts.getAdditionalPostOptions;
       this.exerptLimit = opts.exerptLimit;
+      this.zeroResultsInfo = opts.zeroResultsInfo;
 
       this.printPosts();
     },
@@ -78,9 +82,6 @@
       var getPostOptions = $.extend({}, getPostOptionsDefault, this.getAdditionalPostOptions);
 
       $.get(ghost.url.api('posts', getPostOptions)).done(function (data) {
-        console.log(data);
-        console.log(data.meta.pagination);
-
         var resultsData = '';
 
         data.posts.forEach(function(post) {
@@ -96,21 +97,31 @@
             var tagList = (tagArr.length > 0 ? tagArr.filter(Boolean).join(', ') : '');
             post.tagList = tagList;
           }
-          console.log(post);
           var html = this.format(this.postTemplate, post);
           resultsData += html;
         }.bind(this));
 
         var pagination = data.meta.pagination;
-        pagination.urlPrev = (pagination.prev ? window.location.pathname + '?page=' + pagination.prev : '');
-        pagination.urlNext = (pagination.next ? window.location.pathname + '?page=' + pagination.next : '');
-        console.log("@@@", pagination.urlPrev);
-        console.log("@@@", pagination.urlNext);
-        pagination.prevTemplate = (pagination.urlPrev ? this.format(this.paginationPrevTemplate, pagination) : '');
-        pagination.nextTemplate = (pagination.urlNext ? this.format(this.paginationNextTemplate, pagination) : '');
+        if (pagination.total > 0) {
+          pagination.urlPrev = (pagination.prev ? window.location.pathname + '?page=' + pagination.prev : '');
+          pagination.urlNext = (pagination.next ? window.location.pathname + '?page=' + pagination.next : '');
+          pagination.prevTemplate = (pagination.urlPrev ? this.format(this.paginationPrevTemplate, pagination) : '');
+          pagination.nextTemplate = (pagination.urlNext ? this.format(this.paginationNextTemplate, pagination) : '');
 
-        resultsData += this.format(this.paginationContainerTemplate, pagination);
+          if (this.paginationContainer) {
+            $(this.paginationContainer).html(this.format(this.paginationContainerTemplate, pagination));
+          } else {
+            resultsData += this.format(this.paginationContainerTemplate, pagination);
+          }
+        } else {
+          resultsData = this.zeroResultsInfo;
+        }
+
         $(this.target).append(resultsData);
+
+        if (this.onComplete) {
+          this.onComplete();
+        };
       }.bind(this)).fail(function(err) {
         console.log(err);
       });
