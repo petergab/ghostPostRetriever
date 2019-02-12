@@ -1,8 +1,8 @@
-![Version](https://img.shields.io/badge/Version-0.1.1-brightgreen.svg)
+![Version](https://img.shields.io/badge/Version-1.0-brightgreen.svg)
 ![GhostVersion](https://img.shields.io/badge/GhostVersion-0.11.7-red.svg)
 
 # ghostPostRetriever
-A Ghost blog's posts retrieve engine.
+A Ghost blog's posts retrieve engine. Shows posts with pagination. Optionally pages are switched without reloading and with keeping the browser history.
 
 
 **Original developer:** [skyweb.piotr.gabara@gmail.com](mailto:skyweb.piotr.gabara@gmail.com)
@@ -53,6 +53,8 @@ GhostPostRetriever offers a set of options when the plugin is invoked.
 :arrow_right: **tagTemplate**
 > A Handlebars template used to display Tags (if included in getAdditionalPostOptions).
 >
+> Default usage: Just put ``{{tagList}}`` somewhere in your template
+>
 > Default template is:
 ```html
 <a href="/tag/{{slug}}">{{name}}</a>
@@ -60,6 +62,8 @@ GhostPostRetriever offers a set of options when the plugin is invoked.
 
 :arrow_right: **authorTemplate**
 > A Handlebars template used to display Authors (if included in getAdditionalPostOptions).
+>
+> Default usage: Just put ``{{authorViaTemplate}}`` somewhere in your template
 >
 > Default template is:
 ```html
@@ -131,9 +135,11 @@ $("#posts-container").ghostPostRetriever({
 > Default value is: ``6``
 
 :arrow_right: **toLocaleDateStringLocale**
-> A string with a BCP 47 language tag, or an array of such strings used in [The toLocaleDateString()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleDateString) method.
+> A string with a BCP 47 language tag, or an array of such strings used in [The toLocaleDateString()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleDateString) method to show publication date.
 >
 > Default value is: ``'en-US'``
+>
+> Default usage: Just put ``{{prettyPubDate}}`` somewhere in your template instead of ``published_at``
 
 :arrow_right: **toLocaleDateStringOptions**
 > An object with additional properties used in [The toLocaleDateString()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleDateString) method.

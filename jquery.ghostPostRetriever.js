@@ -1,14 +1,16 @@
 /*global jQuery, ghost*/
-/*eslint max-statements: ["error", 20]*/
+/*eslint max-statements: ["error", 25]*/
 /*eslint no-use-before-define: ["error", { "variables": false }]*/
+
 /**
-* ghostPostRetriever - 0.1.2
+* ghostPostRetriever - 1.0
  * for Ghost Version: 0.11.7
  * Copyright (C) 2019 Piotr Gabara (skyweb.piotr.gabara@gmail.com)
+ * https://github.com/petergab/ghostPostRetriever
  * MIT Licensed
  * @license
 */
-(function( $ ) {
+(function($) {
 
   $.fn.ghostPostRetriever = function(options) {
     var opts = $.extend({}, $.fn.ghostPostRetriever.defaults, options);
@@ -24,12 +26,12 @@
       '<div class="extra-pagination inner">' +
         '<nav class="pagination">' +
           '{{prevTemplate}}' +
-          '<span>Page {{page}} of {{pages}}</span>' +
+          '<span> Page {{page}} of {{pages}}</span> ' +
           '{{nextTemplate}}' +
         '</nav>' +
       '</div>',
-    paginationPrevTemplate: '<a target="_self" href="{{urlPrev}}">&larr; Newer Posts</a>',
-    paginationNextTemplate: '<a target="_self" href="{{urlNext}}">Older Posts &rarr;</a>',
+    paginationPrevTemplate: '<a id="pagination-prev" href="{{urlPrev}}">&larr; Newer Posts</a>',
+    paginationNextTemplate: '<a id="pagination-next" href="{{urlNext}}">Older Posts &rarr;</a>',
     paginationContainer: false,
     before: false,
     onComplete: false,
@@ -58,32 +60,61 @@
       this.paginationContainer = opts.paginationContainer;
       this.before = opts.before;
       this.onComplete = opts.onComplete;
-      this.page = opts.page;
+      this.page = opts.page || 1;
       this.postsLimit = opts.postsLimit;
       this.toLocaleDateStringLocale = opts.toLocaleDateStringLocale;
       this.toLocaleDateStringOptions = opts.toLocaleDateStringOptions;
-      this.getAdditionalPostOptions = opts.getAdditionalPostOptions;
       this.exerptLimit = opts.exerptLimit;
       this.zeroResultsInfo = opts.zeroResultsInfo;
-
-      this.printPosts();
-    },
-
-    printPosts: function() {
-      this.clear();
-
-      if (this.before) {
-        this.before();
-      }
 
       var getPostOptionsDefault = {
         limit: this.postsLimit,
         page: parseInt(this.page) || 1
       };
-      var getPostOptions = $.extend({}, getPostOptionsDefault, this.getAdditionalPostOptions);
+      this.getPostOptions = $.extend({}, getPostOptionsDefault, opts.getAdditionalPostOptions);
+      this.setObservers();
 
-      $.get(ghost.url.api('posts', getPostOptions)).done(function (data) {
-        var resultsData = '';
+      if (this.before) {
+        this.before();
+      }
+
+      this.getAndShowPosts(this.getPostOptions);
+    },
+
+    setObservers: function() {
+      var paginationWrapper;
+      if (this.paginationContainer && this.paginationContainer.length > 0) {
+        paginationWrapper = this.paginationContainer;
+      } else {
+        paginationWrapper = this.target;
+      }
+      // The observer is set on the paginationContainer if it exists, if not it is set on whole module target container
+      $(paginationWrapper).on('click', '#pagination-prev, #pagination-next', this.paginationClick.bind(this));
+
+      window.onpopstate = function(event) {
+        this.getPostOptions.page = ((event.state && event.state.page) ? event.state.page : 1);
+        this.getAndShowPosts(this.getPostOptions);
+      }.bind(this);
+    },
+
+    paginationClick: function(e) {
+      e.preventDefault();
+      if (($(e.target).attr('id') === 'pagination-prev') && (parseInt(this.page) > 1)) {
+        this.page = parseInt(this.page) - 1;
+      }
+      if (($(e.target).attr('id') === 'pagination-next') && (parseInt(this.page) > 0)) {
+        this.page = parseInt(this.page) + 1;
+      }
+      this.getPostOptions.page = this.page;
+      this.getAndShowPosts(this.getPostOptions);
+      window.history.pushState({page: this.page}, '', `${window.location.pathname}?page=${this.page}`);
+      return false;
+    },
+
+    getAndShowPosts: function() {
+      this.clear();
+      $.get(ghost.url.api('posts', this.getPostOptions)).done(function(data) {
+        var resultHtml = '';
 
         data.posts.forEach(function(post) {
           post.exerpt = this.createExcerpt(post.html);
@@ -92,14 +123,12 @@
             post.authorViaTemplate = this.format(this.authorTemplate, post.author);
           }
           if (post.tags) {
-            var tagArr = post.tags.map(function(t) {
+            var tagsArray = post.tags.map(function(t) {
               return (t.visibility === 'public' ? this.format(this.tagTemplate, t) : '');
             }.bind(this));
-            var tagList = (tagArr.length > 0 ? tagArr.filter(Boolean).join(', ') : '');
-            post.tagList = tagList;
+            post.tagList = (tagsArray.length > 0 ? tagsArray.filter(Boolean).join(', ') : '');
           }
-          var html = this.format(this.postTemplate, post);
-          resultsData += html;
+          resultHtml += this.format(this.postTemplate, post);
         }.bind(this));
 
         var pagination = data.meta.pagination;
@@ -112,23 +141,25 @@
           if (this.paginationContainer) {
             $(this.paginationContainer).html(this.format(this.paginationContainerTemplate, pagination));
           } else {
-            resultsData += this.format(this.paginationContainerTemplate, pagination);
+            resultHtml += this.format(this.paginationContainerTemplate, pagination);
           }
         } else {
-          resultsData = this.zeroResultsInfo;
+          resultHtml = this.zeroResultsInfo;
         }
 
-        $(this.target).append(resultsData);
+        $(this.target).append(resultHtml);
 
         if (this.onComplete) {
           this.onComplete();
         }
       }.bind(this)).fail(function(err) {
-        $(this.target).append('Error occured (' + err + '). Please try again.');
+        $(this.target).append(`Error ${err} occured. Please try again.`);
       });
     },
 
     clear: function() {
+      // Setting the container min-height so it doesn't jump on switching content
+      $(this.target).css('min-height', `${$(this.target).height()}px`);
       $(this.target).empty();
     },
 
@@ -142,7 +173,7 @@
     },
 
     format: function(template, data) {
-      return template.replace(/{{([^{}]*)}}/g, function (a, b) {
+      return template.replace(/{{([^{}]*)}}/g, function(a, b) {
         var r = data[b];
         return typeof r === 'string' || typeof r === 'number' ? r : a;
       });
