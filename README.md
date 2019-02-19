@@ -1,4 +1,4 @@
-![Version](https://img.shields.io/badge/Version-1.0-brightgreen.svg)
+![Version](https://img.shields.io/badge/Version-1.1-brightgreen.svg)
 ![GhostVersion](https://img.shields.io/badge/GhostVersion-0.11.7-red.svg)
 
 # ghostPostRetriever
@@ -118,6 +118,11 @@ $("#posts-container").ghostPostRetriever({
   }
 });
 ```
+
+:arrow_right: **paginationShow**
+> The flag to decide if the pagination should be visible
+>
+> Default value is: ``true``
 
 :arrow_right: **onComplete**
 > Use to optionally set a callback function that is executed after the list of results is displayed. The callback function takes no arguments.

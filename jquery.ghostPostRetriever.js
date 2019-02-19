@@ -3,7 +3,7 @@
 /*eslint no-use-before-define: ["error", { "variables": false }]*/
 
 /**
-* ghostPostRetriever - 1.0
+* ghostPostRetriever - 1.1
  * for Ghost Version: 0.11.7
  * Copyright (C) 2019 Piotr Gabara (skyweb.piotr.gabara@gmail.com)
  * https://github.com/petergab/ghostPostRetriever
@@ -33,6 +33,7 @@
     paginationPrevTemplate: '<a id="pagination-prev" href="{{urlPrev}}">&larr; Newer Posts</a>',
     paginationNextTemplate: '<a id="pagination-next" href="{{urlNext}}">Older Posts &rarr;</a>',
     paginationContainer: false,
+    paginationShow: true,
     before: false,
     onComplete: false,
     page: 1,
@@ -58,6 +59,7 @@
       this.paginationPrevTemplate = opts.paginationPrevTemplate;
       this.paginationNextTemplate = opts.paginationNextTemplate;
       this.paginationContainer = opts.paginationContainer;
+      this.paginationShow = opts.paginationShow;
       this.before = opts.before;
       this.onComplete = opts.onComplete;
       this.page = opts.page || 1;
@@ -82,14 +84,16 @@
     },
 
     setObservers: function() {
-      var paginationWrapper;
-      if (this.paginationContainer && this.paginationContainer.length > 0) {
-        paginationWrapper = this.paginationContainer;
-      } else {
-        paginationWrapper = this.target;
+      if (this.paginationShow) {
+        var paginationWrapper;
+        if (this.paginationContainer && this.paginationContainer.length > 0) {
+          paginationWrapper = this.paginationContainer;
+        } else {
+          paginationWrapper = this.target;
+        }
+        // The observer is set on the paginationContainer if it exists, if not it is set on whole module target container
+        $(paginationWrapper).on('click', '#pagination-prev, #pagination-next', this.paginationClick.bind(this));
       }
-      // The observer is set on the paginationContainer if it exists, if not it is set on whole module target container
-      $(paginationWrapper).on('click', '#pagination-prev, #pagination-next', this.paginationClick.bind(this));
 
       window.onpopstate = function(event) {
         this.getPostOptions.page = ((event.state && event.state.page) ? event.state.page : 1);
@@ -133,15 +137,17 @@
 
         var pagination = data.meta.pagination;
         if (pagination.total > 0) {
-          pagination.urlPrev = (pagination.prev ? window.location.pathname + '?page=' + pagination.prev : '');
-          pagination.urlNext = (pagination.next ? window.location.pathname + '?page=' + pagination.next : '');
-          pagination.prevTemplate = (pagination.urlPrev ? this.format(this.paginationPrevTemplate, pagination) : '');
-          pagination.nextTemplate = (pagination.urlNext ? this.format(this.paginationNextTemplate, pagination) : '');
+          if (this.paginationShow) {
+            pagination.urlPrev = (pagination.prev ? window.location.pathname + '?page=' + pagination.prev : '');
+            pagination.urlNext = (pagination.next ? window.location.pathname + '?page=' + pagination.next : '');
+            pagination.prevTemplate = (pagination.urlPrev ? this.format(this.paginationPrevTemplate, pagination) : '');
+            pagination.nextTemplate = (pagination.urlNext ? this.format(this.paginationNextTemplate, pagination) : '');
 
-          if (this.paginationContainer) {
-            $(this.paginationContainer).html(this.format(this.paginationContainerTemplate, pagination));
-          } else {
-            resultHtml += this.format(this.paginationContainerTemplate, pagination);
+            if (this.paginationContainer) {
+              $(this.paginationContainer).html(this.format(this.paginationContainerTemplate, pagination));
+            } else {
+              resultHtml += this.format(this.paginationContainerTemplate, pagination);
+            }
           }
         } else {
           resultHtml = this.zeroResultsInfo;
