@@ -105,6 +105,11 @@ GhostPostRetriever offers a set of options when the plugin is invoked.
 >
 > Default value is: ``false``
 
+:arrow_right: **paginationShow**
+> The flag to decide if the pagination should be visible
+>
+> Default value is: ``true``
+
 :arrow_right: **before**
 > Use to optionally set a callback function that is executed before the list of results is displayed. The callback function takes no arguments.
 >
@@ -118,11 +123,6 @@ $("#posts-container").ghostPostRetriever({
   }
 });
 ```
-
-:arrow_right: **paginationShow**
-> The flag to decide if the pagination should be visible
->
-> Default value is: ``true``
 
 :arrow_right: **onComplete**
 > Use to optionally set a callback function that is executed after the list of results is displayed. The callback function takes no arguments.

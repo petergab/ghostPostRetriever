@@ -1,3 +1,4 @@
+v1.1.1 : FIX: ability to choose only few fields from each post
 v1.1 : Added flag to decide if the pagination should be visible
 v1.0 : Added ability to switch pages without reloading the page and with keeping the the browser history
 v0.1.2 : ESLint fixes

@@ -121,8 +121,12 @@
         var resultHtml = '';
 
         data.posts.forEach(function(post) {
-          post.exerpt = this.createExcerpt(post.html);
-          post.prettyPubDate = this.prettyDate(post.published_at);
+          if (post.html) {
+            post.exerpt = this.createExcerpt(post.html);
+          }
+          if (post.published_at) {
+            post.prettyPubDate = this.prettyDate(post.published_at);
+          }
           if (post.author) {
             post.authorViaTemplate = this.format(this.authorTemplate, post.author);
           }
