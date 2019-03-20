@@ -1,4 +1,4 @@
-![Version](https://img.shields.io/badge/Version-1.1-brightgreen.svg)
+![Version](https://img.shields.io/badge/Version-1.1.2-brightgreen.svg)
 ![GhostVersion](https://img.shields.io/badge/GhostVersion-0.11.7-red.svg)
 
 # ghostPostRetriever

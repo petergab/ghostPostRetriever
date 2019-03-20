@@ -3,7 +3,7 @@
 /*eslint no-use-before-define: ["error", { "variables": false }]*/
 
 /**
-* ghostPostRetriever - 1.1
+* ghostPostRetriever - 1.1.2
  * for Ghost Version: 0.11.7
  * Copyright (C) 2019 Piotr Gabara (skyweb.piotr.gabara@gmail.com)
  * https://github.com/petergab/ghostPostRetriever
@@ -80,7 +80,7 @@
         this.before();
       }
 
-      this.getAndShowPosts(this.getPostOptions);
+      this.getAndShowPosts();
     },
 
     setObservers: function() {
@@ -97,7 +97,7 @@
 
       window.onpopstate = function(event) {
         this.getPostOptions.page = ((event.state && event.state.page) ? event.state.page : 1);
-        this.getAndShowPosts(this.getPostOptions);
+        this.getAndShowPosts();
       }.bind(this);
     },
 
@@ -110,7 +110,7 @@
         this.page = parseInt(this.page) + 1;
       }
       this.getPostOptions.page = this.page;
-      this.getAndShowPosts(this.getPostOptions);
+      this.getAndShowPosts();
       window.history.pushState({page: this.page}, '', `${window.location.pathname}?page=${this.page}`);
       return false;
     },
