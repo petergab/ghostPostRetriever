@@ -3,7 +3,7 @@
 /*eslint no-use-before-define: ["error", { "variables": false }]*/
 
 /**
-* ghostPostRetriever - 1.1.2
+* ghostPostRetriever - 1.1.3
  * for Ghost Version: 0.11.7
  * Copyright (C) 2019 Piotr Gabara (skyweb.piotr.gabara@gmail.com)
  * https://github.com/petergab/ghostPostRetriever
@@ -46,7 +46,8 @@
     },
     getAdditionalPostOptions: {},
     exerptLimit: 200,
-    zeroResultsInfo: 'There are no posts that meet specified criteria.'
+    zeroResultsInfo: 'There are no posts that meet specified criteria.',
+    clearTargetBeforeInserting: true
   };
 
   var pluginMethods = {
@@ -68,6 +69,7 @@
       this.toLocaleDateStringOptions = opts.toLocaleDateStringOptions;
       this.exerptLimit = opts.exerptLimit;
       this.zeroResultsInfo = opts.zeroResultsInfo;
+      this.clearTargetBeforeInserting = opts.clearTargetBeforeInserting;
 
       var getPostOptionsDefault = {
         limit: this.postsLimit,
@@ -116,7 +118,9 @@
     },
 
     getAndShowPosts: function() {
-      this.clear();
+      if (this.clearTargetBeforeInserting) {
+        this.clear();
+      }
       $.get(ghost.url.api('posts', this.getPostOptions)).done(function(data) {
         var resultHtml = '';
 

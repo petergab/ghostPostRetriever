@@ -1,4 +1,4 @@
-![Version](https://img.shields.io/badge/Version-1.1.2-brightgreen.svg)
+![Version](https://img.shields.io/badge/Version-1.1.3-brightgreen.svg)
 ![GhostVersion](https://img.shields.io/badge/GhostVersion-0.11.7-red.svg)
 
 # ghostPostRetriever
@@ -182,3 +182,8 @@ $("#posts-container").ghostPostRetriever({
 > Information to be shown when there are no posts to be shown (also the pagination container is not presented)
 >
 > Default value is: ``'There are no posts that meet specified criteria.'``
+
+:arrow_right: **clearTargetBeforeInserting**
+> The flag to decide if you want to clear the target before inserting results
+>
+> Default value is: ``true``

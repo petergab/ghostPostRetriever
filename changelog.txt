@@ -1,3 +1,4 @@
+v1.1.3 : Added flag to decide if you want to clear the target before inserting results
 v1.1.2 : FIX: Remove unnecessary parameter
 v1.1.1 : FIX: ability to choose only few fields from each post
 v1.1 : Added flag to decide if the pagination should be visible
