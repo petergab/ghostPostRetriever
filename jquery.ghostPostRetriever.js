@@ -3,7 +3,7 @@
 /*eslint no-use-before-define: ["error", { "variables": false }]*/
 
 /**
-* ghostPostRetriever - 1.1.3
+* ghostPostRetriever - 1.2
  * for Ghost Version: 0.11.7
  * Copyright (C) 2019 Piotr Gabara (skyweb.piotr.gabara@gmail.com)
  * https://github.com/petergab/ghostPostRetriever
@@ -13,7 +13,7 @@
 (function($) {
 
   $.fn.ghostPostRetriever = function(options) {
-    var opts = $.extend({}, $.fn.ghostPostRetriever.defaults, options);
+    const opts = $.extend({}, $.fn.ghostPostRetriever.defaults, options);
     pluginMethods.init(this, opts);
     return pluginMethods;
   };
@@ -50,7 +50,7 @@
     clearTargetBeforeInserting: true
   };
 
-  var pluginMethods = {
+  const pluginMethods = {
     init: function(target, opts) {
       this.target = target;
       this.postTemplate = opts.postTemplate;
@@ -71,7 +71,7 @@
       this.zeroResultsInfo = opts.zeroResultsInfo;
       this.clearTargetBeforeInserting = opts.clearTargetBeforeInserting;
 
-      var getPostOptionsDefault = {
+      const getPostOptionsDefault = {
         limit: this.postsLimit,
         page: parseInt(this.page) || 1
       };
@@ -87,20 +87,20 @@
 
     setObservers: function() {
       if (this.paginationShow) {
-        var paginationWrapper;
+        let paginationWrapper;
         if (this.paginationContainer && this.paginationContainer.length > 0) {
           paginationWrapper = this.paginationContainer;
         } else {
           paginationWrapper = this.target;
         }
         // The observer is set on the paginationContainer if it exists, if not it is set on whole module target container
-        $(paginationWrapper).on('click', '#pagination-prev, #pagination-next', this.paginationClick.bind(this));
+        $(paginationWrapper).on('click', '#pagination-prev, #pagination-next', (e) => this.paginationClick(e));
       }
 
-      window.onpopstate = function(event) {
-        this.getPostOptions.page = ((event.state && event.state.page) ? event.state.page : 1);
+      window.onpopstate = (e) => {
+        this.getPostOptions.page = ((e.state && e.state.page) ? e.state.page : 1);
         this.getAndShowPosts();
-      }.bind(this);
+      };
     },
 
     paginationClick: function(e) {
@@ -121,10 +121,10 @@
       if (this.clearTargetBeforeInserting) {
         this.clear();
       }
-      $.get(ghost.url.api('posts', this.getPostOptions)).done(function(data) {
-        var resultHtml = '';
+      $.get(ghost.url.api('posts', this.getPostOptions)).done((data) => {
+        let resultHtml = '';
 
-        data.posts.forEach(function(post) {
+        data.posts.forEach((post) => {
           if (post.html) {
             post.exerpt = this.createExcerpt(post.html);
           }
@@ -135,15 +135,15 @@
             post.authorViaTemplate = this.format(this.authorTemplate, post.author);
           }
           if (post.tags) {
-            var tagsArray = post.tags.map(function(t) {
+            const tagsArray = post.tags.map((t) => {
               return (t.visibility === 'public' ? this.format(this.tagTemplate, t) : '');
-            }.bind(this));
+            });
             post.tagList = (tagsArray.length > 0 ? tagsArray.filter(Boolean).join(', ') : '');
           }
           resultHtml += this.format(this.postTemplate, post);
-        }.bind(this));
+        });
 
-        var pagination = data.meta.pagination;
+        const pagination = data.meta.pagination;
         if (pagination.total > 0) {
           if (this.paginationShow) {
             pagination.urlPrev = (pagination.prev ? window.location.pathname + '?page=' + pagination.prev : '');
@@ -166,7 +166,7 @@
         if (this.onComplete) {
           this.onComplete();
         }
-      }.bind(this)).fail(function(err) {
+      }).fail((err) => {
         $(this.target).append(`Error ${err} occured. Please try again.`);
       });
     },
@@ -178,7 +178,7 @@
     },
 
     prettyDate: function(date) {
-      var d = new Date(date);
+      const d = new Date(date);
       return d.toLocaleDateString(this.toLocaleDateStringLocale, this.toLocaleDateStringOptions);
     },
 
@@ -188,7 +188,7 @@
 
     format: function(template, data) {
       return template.replace(/{{([^{}]*)}}/g, function(a, b) {
-        var r = data[b];
+        const r = data[b];
         return typeof r === 'string' || typeof r === 'number' ? r : a;
       });
     }
